@@ -1,0 +1,338 @@
+Project Overview
+Goal: Build a web/mobile app where users search any topic, and the app returns:
+
+Most reliable results (credible sources)
+
+Dropdown of unreliable sources (for transparency/media literacy)
+
+Full source listing per news item
+
+Download current news as .md or .pdf
+
+Home view (trending/topics)
+
+Core Features
+Module	Description
+Search Engine	Queries multiple news APIs + web scraping (with permission)
+Reliability Scoring	Uses domain reputation lists (e.g., NewsGuard, MediaBiasFactCheck)
+Dual Result Display	Reliable results main view; unreliable in a dropdown
+Source Attribution	Every article shows source name, URL, date, bias rating (if available)
+Download	Export current result set as Markdown or PDF
+Home Page	Default view: trending topics, saved searches, bookmarks
+Technical Stack (Suggested)
+Layer	Technology
+Frontend	React (Web) + React Native (mobile) or Flutter
+Backend	Node.js + Express or Python (FastAPI)
+Search APIs	GNews, NewsAPI, Bing News, + SerpAPI for web results
+Reliability DB	CSV/JSON of domains → reliability score (manual + community)
+Scraping (fallback)	Playwright / BeautifulSoup (respect robots.txt)
+PDF export	Puppeteer (HTML→PDF) or jsPDF
+Markdown export	FileSaver.js + markdown formatting
+Hosting	Vercel / Netlify (frontend), Railway / AWS (backend)
+Data Flow
+User enters query → backend calls multiple news APIs + optional web search.
+
+Each result domain is checked against reliability database (1–5 scale).
+
+Results split:
+
+Reliable (score ≥ 3.5) → main list
+
+Unreliable (score < 3.5) → dropdown list
+
+Frontend displays both sections with source badges.
+
+User clicks Download → current results exported as .md or .pdf.
+
+Database / Storage (Minimal)
+No user login required (optional later)
+
+Local storage (browser) for bookmarks/search history
+
+Backend only caches API responses for 10 minutes to avoid rate limits
+
+Milestones (8 weeks)
+Week	Tasks
+1	Setup backend: API integrations (NewsAPI, GNews), domain reliability scoring system
+2	Build search endpoint → returns reliable + unreliable arrays
+3	Frontend: Search bar, results listing, source badges
+4	Implement dropdown for unreliable sources
+5	Add download as Markdown + PDF
+6	Home page: trending topics (from cached searches)
+7	Testing: search accuracy, rate limits, mobile responsiveness
+8	Deploy + documentation + optional reliability DB updates
+Reliability Scoring Logic (Example)
+json
+{
+  "reuters.com": 5,
+  "apnews.com": 5,
+  "bbc.com": 4.5,
+  "nytimes.com": 4,
+  "breitbart.com": 2,
+  "infowars.com": 1,
+  "theonion.com": 0 (satire)
+}
+User can suggest a site rating (future feature)
+
+Initial list: ~200 domains from Media Bias/Fact Check
+
+UX Outline
+Search Page
+
+Input field + search button
+
+Reliable results (cards: headline, source, date, snippet)
+
+Dropdown labeled “⚠️ Unreliable sources found (click to expand)”
+
+Download buttons (.md / .pdf)
+
+Home link (top nav)
+
+Home Page
+
+Trending searches (past 24h)
+
+Bookmarked articles (local storage)
+
+Quick links to common topics (politics, tech, health)
+
+Constraints & Risks
+Risk	Mitigation
+API rate limits	Cache results + use multiple API keys
+Unreliable source classification	Allow user override + regular DB updates
+Legal (scraping)	Use only official APIs where possible
+Mobile performance	Lazy load results + virtualized list
+Example Output (Search: “COVID vaccine”)
+Reliable results
+
+Reuters: New study shows efficacy → source: reuters.com (reliability 5)
+
+WHO: Global vaccine safety report → source: who.int (reliability 5)
+
+Unreliable dropdown
+
+NaturalNews: “Vaccine hoax exposed” → source: naturalnews.com (reliability 1)
+
+Deliverables
+Fully working web app
+
+Source code (GitHub)
+
+reliability_scores.json
+
+User guide (how reliability is determined)
+
+One-click download of any search result set as .md or .pdf
+
+Do you want me to also provide a mock database of reliable/unreliable sources to start with, or a wireframe sketch for the UI?
+
+i want web based app and seach all over the internet
+Read 10 web pages
+Here is the refined project plan for your web-based news app that searches the entire internet (not just pre-selected sources) and displays both reliable and unreliable results.
+
+Project Plan: Full-Internet News Search & Reliability Analyzer
+1. Project Overview
+Build a web application where users can search any topic and receive news results from across the entire internet. The app will:
+
+Search the whole web using multiple news APIs + general web search
+
+Categorize results into "Reliable" (main view) and "Unreliable" (dropdown)
+
+Show all sources with transparency (domain, date, reliability score)
+
+Download current news as .md or .pdf
+
+Return to home view with trending topics
+
+2. Key Requirement: "Search All Over the Internet"
+To achieve true full-internet search, your backend must aggregate from multiple sources simultaneously:
+
+Search Type	Sources	Coverage
+News APIs	NewsAPI.org, GNews, TheNewsAPI, NewsData.io	Major news outlets worldwide
+General Web Search	DuckDuckGo, Google (via API), Bing, Brave	Blogs, forums, independent sites
+Archives	Internet Archive, Chronicling America	Historical/archived news
+Implementation approach:
+
+Use smart API switching to try multiple APIs when one hits rate limits
+
+Combine results and remove duplicates by URL
+
+Fallback to DuckDuckGo search for queries that return few news results
+
+3. Reliability Scoring System
+Core Logic
+Each domain is checked against a reliability database before displaying results.
+
+Option A: Use existing database (recommended)
+
+NewsGuard provides comprehensive trustworthiness ratings for thousands of sources
+
+Covers US, France, Italy, Germany, Canada, and expanding
+
+Includes political orientation and topic classifications
+
+Option B: Build your own
+
+Start with a curated JSON list of 200+ domains
+
+Allow user feedback to improve ratings over time
+
+Reliability Scale
+Score	Label	Example Domains
+4.0–5.0	Very Reliable	Reuters, AP, BBC
+3.0–3.9	Mostly Reliable	NYT, WSJ, The Guardian
+2.0–2.9	Mixed/Opinion	BuzzFeed, HuffPost
+1.0–1.9	Unreliable	Infowars, NaturalNews
+0.0–0.9	Satire/Fake	The Onion
+Display Rules
+Main results area: Only sources with score ≥ 3.0
+
+Dropdown: All sources with score < 3.0, clearly labeled as "Unreliable / Unverified"
+
+Every card: Shows source name, domain, reliability badge, date, and snippet
+
+4. Technical Architecture
+Recommended Stack
+Layer	Technology	Why
+Frontend	React + TypeScript	Type safety, component reusability
+Backend	Node.js + Express	Handles multiple API calls concurrently
+Search Aggregation	Custom orchestrator + @debriefer/sources	Built-in web/news/archive integrations
+PDF Export	React-PDF or Puppeteer	Professional PDF generation
+Markdown Export	FileSaver.js + custom formatting	Simple browser-based export
+Deployment	Vercel (frontend) + Render (backend)	Free tier available, easy CI/CD
+Data Flow Diagram
+text
+User Query
+    ↓
+Backend Orchestrator
+    ↓
+┌─────────────────────────────────────────────┐
+│  Parallel API Calls:                         │
+│  • NewsAPI.org  ──┐                         │
+│  • GNews        ──┼─→ Combine → Deduplicate │
+│  • DuckDuckGo   ──┘                         │
+│  • Internet Archive (optional)               │
+└─────────────────────────────────────────────┘
+    ↓
+Reliability Check (domain → score database)
+    ↓
+Split Results:
+    ├─ Reliable (score ≥ 3.0) → Main display
+    └─ Unreliable (score < 3.0) → Dropdown
+    ↓
+Frontend Rendering + Download options
+5. Core Features Breakdown
+5.1 Search Engine Module
+Libraries/tools to use:
+
+@debriefer/sources - Provides DuckDuckGo search, news APIs, and archives out of the box
+
+Custom API switching logic (see news-mcp implementation)
+
+Endpoint design:
+
+text
+GET /api/search?q={query}&limit=20
+Response: {
+  reliable: [...],
+  unreliable: [...],
+  totalSources: number
+}
+5.2 Reliability Checker
+Implementation:
+
+Store reliability data in a JSON file or lightweight database
+
+Update weekly via GitHub Actions (pull from NewsGuard or community feed)
+
+Cache results for 24 hours to reduce API costs
+
+5.3 Download Feature
+Markdown export:
+
+Format results as markdown table
+
+Use FileSaver.js to trigger download
+
+PDF export:
+
+Use React-PDF to generate PDF from React components
+
+Alternative: markdawn for markdown→PDF conversion
+
+5.4 Home Page
+Content:
+
+Trending searches (from backend analytics or cached)
+
+Quick category buttons (Tech, Politics, Health, Sports)
+
+Bookmarked articles (localStorage)
+
+6. Development Milestones (8-10 weeks)
+Week	Tasks
+1–2	Backend setup: API integrations (NewsAPI, GNews, DuckDuckGo), smart switching logic
+3	Reliability database: Create/import domain scores, build scoring endpoint
+4	Frontend: Search UI, result cards, source badges
+5	Dual display: Main results + unreliable dropdown with expand/collapse
+6	Download features: Markdown + PDF export
+7	Home page: Trending topics, categories, bookmarks
+8–9	Testing: Rate limits, search accuracy, mobile responsive
+10	Deployment + documentation
+7. API Key Strategy
+To search "all over the internet" reliably, you need multiple API keys:
+
+Service	Free Tier	Sign-up Link
+NewsAPI.org	100 requests/day	newsapi.org
+GNews	100 requests/day	gnews.io
+TheNewsAPI	Unlimited*	thenewsapi.com
+NewsData.io	200 requests/day	newsdata.io
+DuckDuckGo	Free (no key)	-
+Tip: Implement automatic failover - if one API fails or hits limit, try the next one .
+
+8. Cost Estimate (Monthly)
+Service	Free Tier	Paid (if needed)
+News APIs	500-1000 requests/day	$0–$49
+Backend hosting (Render)	Free (750 hours)	$7–$19
+Frontend hosting (Vercel)	Free	$20
+Domain	-	$10–$15/year
+You can run this app at $0/month using free tiers.
+
+9. Challenges & Solutions
+Challenge	Solution
+Rate limits on free APIs	Use 3-5 APIs with automatic switching
+Reliability database accuracy	Start with 200 domains, allow user reports, update weekly
+Duplicate articles across APIs	Hash + compare by URL and title
+Slow search (multiple APIs)	Parallel requests with Promise.all(), timeout after 5 seconds
+"Unreliable" labeling concerns	Always show source name + badge; let users decide
+10. Sample UI Mockup
+text
+┌─────────────────────────────────────────────────────────────┐
+│  [🔍]  covid vaccine                            [Search]    │
+│  [Home]                                        [.md] [.pdf] │
+├─────────────────────────────────────────────────────────────┤
+│  ✅ RELIABLE RESULTS (12)                                    │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │ 📰 Reuters - 2 hours ago                              │  │
+│  │ New study shows vaccine effectiveness after 6 months  │  │
+│  │ 🔗 reuters.com  |  ✅ Very Reliable (4.8)              │  │
+│  └───────────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │ 📰 WHO.int - 1 day ago                                │  │
+│  │ Global vaccine safety report published                │  │
+│  │ 🔗 who.int  |  ✅ Very Reliable (5.0)                  │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ▼ ⚠️ UNRELIABLE SOURCES FOUND (3) [click to expand]        │
+├─────────────────────────────────────────────────────────────┤
+│  [Download as .md]  [Download as .pdf]                      │
+└─────────────────────────────────────────────────────────────┘
+11. Deliverables
+Fully functional web app (deployed on Vercel + Render)
+
+Source code (GitHub repository)
+
+Reliability database (JSON file with 200+ domains)
+
+User guide explaining how reliability is det
